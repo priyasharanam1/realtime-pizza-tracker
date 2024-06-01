@@ -7,6 +7,9 @@ const app = express()
 
 const PORT = process.env.PORT || 3000
 
+//Assets
+
+app.use(express.static('public')) //serves static files from public folder
 app.get('/', (req,res)=>{
      res.render("home")  //the file inside views folder
 })
