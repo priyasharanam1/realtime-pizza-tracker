@@ -37,6 +37,9 @@ section.hero {
   border-color: #fff;
   color: #fff;
 }
+.add-to-cart:focus {
+  outline: none;
+}
 
 .btn-primary {
   transition: all 0.3s ease-in-out;

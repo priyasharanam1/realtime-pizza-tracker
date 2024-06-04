@@ -1,37 +1,65 @@
-const express = require('express')
-const ejs = require('ejs')
-const expressLayouts = require('express-ejs-layouts')
-const path = require('path')
+require('dotenv').config()
+const express = require('express');
+const ejs = require('ejs');
+const expressLayouts = require('express-ejs-layouts');
+const path = require('path');
+const session = require('express-session');
+const flash = require('express-flash');
+const MongoStore = require('connect-mongo'); // Updated import
 
-const app = express()
+const app = express();
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
-//Assets
+const mongoose = require('mongoose');
 
-app.use(express.static('public')) //serves static files from public folder
+// Database connection
+const url = 'mongodb://localhost/pizza';
+mongoose
+  .connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log('MongoDB connected...'))
+  .catch(err => console.log('Failed to connect to MongoDB:', err));
 
-//set template engine
-app.use(expressLayouts)
-app.set('views', path.join(__dirname, '/resources/views'))
-app.set('view engine', 'ejs')
+//session store
+let mongoStore = new MongoStore({
+  mongoUrl: url, // Updated to use mongoUrl directly
+  collection: 'sessions'
+});
 
-app.get('/', (req,res)=>{
-    res.render("home")  //the file inside views folder
+//session config
+app.use(session({
+  secret: process.env.COOKIE_SECRET,
+  resave: false,
+  store: mongoStore,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 * 24 }
+}));
+
+//for displaying temporary session messages
+app.use(flash());
+
+// Assets
+app.use(express.static('public')); // Serves static files from the public folder
+
+app.use(express.json())
+
+//global middleware
+app.use((req,res,next) => {
+    res.locals.session = req.session
+    next()
 })
 
-app.get('/cart', (req,res)=>{
-   res.render('customers/cart')
-})
+// Set template engine
+app.use(expressLayouts);
+app.set('views', path.join(__dirname, '/resources/views'));
+app.set('view engine', 'ejs');
 
-app.get('/login', (req,res)=>{
-    res.render('auth/login')
- })
+// Routes
+require('./routes/web')(app);
 
- app.get('/register', (req,res)=>{
-    res.render('auth/register')
- })
-
-app.listen(PORT, ()=>{
-    console.log(`Listening on port ${PORT}`)
-})
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
+});

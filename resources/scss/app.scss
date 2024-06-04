@@ -39,6 +39,9 @@ section.hero{
         border-color: $pure;
         color: $pure;
     }
+    &:focus{
+        outline: none;
+    }
 }
 
 .btn-primary{
@@ -69,3 +72,4 @@ section.login{
         }
     }
 }
+
