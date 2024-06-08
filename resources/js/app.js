@@ -1,6 +1,7 @@
  import axios from 'axios'
  import toastr from 'toastr'
  import 'toastr/build/toastr.min.css';
+ import { initAdmin } from './admin'
 
  let addToCart = document.querySelectorAll('.add-to-cart')
  let cartCounter = document.querySelector('#cartCounter')
@@ -21,3 +22,12 @@ axios.post('/update-cart', pizza).then(res => {
         updateCart(pizza)
     })
  })
+
+ const alertMsg = document.querySelector('#success-alert')
+ if(alertMsg){
+    setTimeout(()=>{
+        alertMsg.remove()
+    },2000)
+ }
+
+ initAdmin()
